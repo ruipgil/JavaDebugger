@@ -1,0 +1,46 @@
+<project name="debugger" default="build" basedir=".">
+	<description>One more project where Durao does nothing.</description>
+	<property name="build" location="classes"/>
+	<property name="src" location="src"/>
+	<property name="run.mainclass" value="ist.meic.pa.DebuggerCLI"/>
+	<property name="run.args" value="test.Example 1 2 3"/>
+
+	<path id="project.classpath">
+        <!-- compiled classes -->
+		<fileset dir="lib">
+			<include name="**/*.jar"/>
+		</fileset>
+		<pathelement location="${build}" />
+    </path>
+
+	<target name="clean">
+		<!-- cleans the entire project's generated files -->
+		<delete dir="${build}"/>
+	</target>
+	
+	<target name="init">
+		<!-- creates the classes dir -->
+		<mkdir dir="${build}"/>
+	</target>
+
+	<target name="compile">
+		<!-- compiles the project -->
+		<javac srcdir="${src}" destdir="${build}" fork="true" failonerror="true" includeantruntime="false">
+			<classpath refid="project.classpath" />
+		</javac>
+	</target>
+	
+	<target name="build" depends="clean, init, compile"/>
+
+	<target name="run" depends="build">
+		<java classname="${run.mainclass}">
+			<arg line="${run.args}" />
+			<classpath refid="project.classpath" />
+		</java>
+	</target>
+	
+	<target name="pack" depends="clean">
+		<zip destfile="debugger.zip" basedir="." />
+	</target>
+
+</project>
