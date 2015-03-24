@@ -24,14 +24,16 @@ public class DebuggerTranslator implements Translator {
 		CtClass expectionType = ClassPool.getDefault().get("java.lang.Exception");
 		for(CtMethod method : methods) {
 			method.addCatch("{ throw $e; }", expectionType );
-			//method.insertBefore("{ ist.meic.pa.DebugMonitor.enterMethod(\""+className+"."+method.getName()+"\"); }");
+
 			final String methodName = method.getName();
 			final String template =
 					"{"+
 					"  "+DebugMonitor.class.getName()+".record(\"%s.%s\", $args);"+
-					"  $_ = $proceed($$);"+
+					//"  $_ = $proceed($$);"+
 					"}";
-			method.instrument(new ExprEditor() {
+			method.insertBefore(String.format(template, className, methodName));
+			
+			/*method.instrument(new ExprEditor() {
 				public void edit(MethodCall mc) {
 					try {
 						mc.replace(String.format(template, className, methodName));
@@ -39,7 +41,8 @@ public class DebuggerTranslator implements Translator {
 						e.printStackTrace();
 					}
 				}
-			});
+			});*/
+			
 			//method.setModifier PUBLIC
 		}
 	}
