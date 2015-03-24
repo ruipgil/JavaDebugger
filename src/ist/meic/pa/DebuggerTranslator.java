@@ -6,8 +6,7 @@ import javassist.CtClass;
 import javassist.CtMethod;
 import javassist.NotFoundException;
 import javassist.Translator;
-import javassist.expr.ExprEditor;
-import javassist.expr.MethodCall;
+import javassist.Modifier;
 
 public class DebuggerTranslator implements Translator {
 
@@ -26,19 +25,14 @@ public class DebuggerTranslator implements Translator {
 			method.addCatch("{ throw $e; }", expectionType );
 
 			final String methodName = method.getName();
+			
+			boolean isStatic = Modifier.isStatic(method.getModifiers());
 			final String template =
 					"{"+
-					"  "+DebugMonitor.class.getName()+".enterMethod(\"%s.%s\", $args);"+
+					"  "+DebugMonitor.class.getName()+".enterMethod(\"%s.%s\", "+(isStatic?null:"$0")+", $args);"+
 					//"  $_ = $proceed($$);"+
 					"}";
 			method.insertBefore(String.format(template, className, methodName));
-			
-			final String templateAfter =
-					"{"+
-					"  "+DebugMonitor.class.getName()+".leaveMethod();"+
-					//"  $_ = $proceed($$);"+
-					"}";
-			method.insertAfter(templateAfter);
 			
 			/*method.instrument(new ExprEditor() {
 				public void edit(MethodCall mc) {
@@ -49,6 +43,12 @@ public class DebuggerTranslator implements Translator {
 					}
 				}
 			});*/
+			
+			final String templateAfter =
+					"{"+
+					"  "+DebugMonitor.class.getName()+".leaveMethod();"+
+					"}";
+			method.insertAfter(templateAfter);
 			
 			//method.setModifier PUBLIC
 		}

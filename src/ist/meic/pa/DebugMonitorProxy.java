@@ -36,6 +36,25 @@ public class DebugMonitorProxy {
 			e.printStackTrace();
 		}
 	}
+	
+	public void info() {
+		try {
+			Method m = rtDebugMonitor.getMethod("info");
+			m.invoke(null);
+		} catch (NoSuchMethodException | SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 
 }

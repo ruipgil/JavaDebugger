@@ -1,49 +1,107 @@
 package ist.meic.pa;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Stack;
 
 public class DebugMonitor {
-	private static Stack<String> callHistory = new Stack<String>();
-	private static Stack<String> callStack = new Stack<String>();
-
-	public static void enterMethod(String methodName, Object[] args) {
-		String signature = methodName+"(";
-		boolean first = true;
-
-		for(Object arg : args) {
-			if(first) {
-				first = false;
-			} else {
-				signature += ", ";
-			}
-			if(arg instanceof Object[]) {
-				signature += Arrays.toString((Object[])arg);
-			}else{
-				signature += arg.toString();
-			}
+	static class StackEntry {
+		String methodName;
+		Object instance;
+		Object[] args;
+		
+		public StackEntry(String methodName, Object instance, Object[] args) {
+			this.instance = instance;
+			this.args = args;
+			this.methodName = methodName;
 		}
-		signature+=")";
 		
-		// save { objectInstance, fieldsName&values }
+
+		public Object getMethodName() {
+			return methodName;
+		}
 		
-		callStack.push(signature);
-		callHistory.push(signature);
+		public Object getInstance() {
+			return instance;
+		}
+
+		public Object[] getArgs() {
+			return args;
+		}
+		
+		public String argsToSignature() {
+			String str = "(";
+			boolean first = true;
+
+			for(Object arg : args) {
+				if(first) {
+					first = false;
+				} else {
+					str += ", ";
+				}
+				if(arg instanceof Object[]) {
+					str += Arrays.toString((Object[])arg);
+				}else{
+					str += arg.toString();
+				}
+			}
+			str+=")";
+			return str;
+		}
+		
+		public String instanceFields() {
+			Field[] fields = instance.getClass().getDeclaredFields();
+			String str = "";
+			for(Field field : fields) {
+				str += field.getName()+" ";
+			}
+			return str;
+		}
+		
+		public String callSignature() {
+			return methodName+argsToSignature();
+		}
+		
+	}
+	
+	/*private static Stack<StackEntry> callHistory = new Stack<StackEntry>();
+	private static Stack<StackEntry> callStack = new Stack<StackEntry>();*/
+	
+	private static Stack<StackEntry> callHistory = new Stack<StackEntry>();
+	private static Stack<StackEntry> callStack = new Stack<StackEntry>();
+
+	public static void enterMethod(String methodName, Object instance, Object[] args) {
+		
+		StackEntry entry = new StackEntry(methodName, instance, args);
+		
+		callStack.push(entry);
+		callHistory.push(entry);
+
 	}
 	
 	public static void leaveMethod() {
 		callStack.pop();
 	}
 	
-	public static void printStackTrace() {
-		System.out.println("Callstack");
-		for(int i=callStack.size(); i>0; i--) {
-			System.out.println(callStack.elementAt(i-1));
+	public static void info() {
+		StackEntry top = callStack.lastElement();
+		
+		Object calledObject = top.getInstance();
+		System.out.print("Called Object:");
+		if(calledObject==null) {
+			System.out.println("null");
+		}else{
+			System.out.println(calledObject.toString());
 		}
 		
-		System.out.println("Callhistory");
-		for(int i=callHistory.size(); i>0; i--) {
-			System.out.println(callHistory.elementAt(i-1));
+		System.out.println("       Fields:"+top.instanceFields());
+		
+		System.out.println("Call stack:");
+		for(int i=callStack.size(); i>0; i--) {
+			StackEntry se = callStack.elementAt(i-1);
+			System.out.println(se.callSignature());
 		}
 	}
+
+
 }

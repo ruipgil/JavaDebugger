@@ -49,7 +49,7 @@ public class CommandDispatcher {
 	 * </code>
 	 */
 	public boolean info() {
-		dm.printStackTrace();
+		dm.info();
 		return false;
 	}
 	/**
