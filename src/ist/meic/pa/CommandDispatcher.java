@@ -2,6 +2,11 @@ package ist.meic.pa;
 
 public class CommandDispatcher {
 	
+	DebugMonitorProxy dm;
+	public CommandDispatcher(DebugMonitorProxy dm) {
+		this.dm = dm;
+	}
+	
 	public boolean exec(String[] command) {
 		if(command.length < 1) {
 			return false;
@@ -44,7 +49,8 @@ public class CommandDispatcher {
 	 * </code>
 	 */
 	public boolean info() {
-		return true;
+		dm.printStackTrace();
+		return false;
 	}
 	/**
 	 * Re-throws the exception to the next handler.

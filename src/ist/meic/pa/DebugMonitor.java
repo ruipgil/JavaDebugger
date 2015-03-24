@@ -1,19 +1,13 @@
 package ist.meic.pa;
 
 import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Stack;
 
 public class DebugMonitor {
-	private static List<String> list = new LinkedList<String>();
+	private static Stack<String> callHistory = new Stack<String>();
+	private static Stack<String> callStack = new Stack<String>();
 
-	/*public static void record(String methodName) {
-		String signature = methodName+"()";
-		list.add(signature);
-		System.out.println(signature);
-	}*/
-
-	public static void record(String methodName, Object[] args) {
+	public static void enterMethod(String methodName, Object[] args) {
 		String signature = methodName+"(";
 		boolean first = true;
 
@@ -31,7 +25,25 @@ public class DebugMonitor {
 		}
 		signature+=")";
 		
-		list.add(signature);
-		System.out.println(signature);
+		// save { objectInstance, fieldsName&values }
+		
+		callStack.push(signature);
+		callHistory.push(signature);
+	}
+	
+	public static void leaveMethod() {
+		callStack.pop();
+	}
+	
+	public static void printStackTrace() {
+		System.out.println("Callstack");
+		for(int i=callStack.size(); i>0; i--) {
+			System.out.println(callStack.elementAt(i-1));
+		}
+		
+		System.out.println("Callhistory");
+		for(int i=callHistory.size(); i>0; i--) {
+			System.out.println(callHistory.elementAt(i-1));
+		}
 	}
 }

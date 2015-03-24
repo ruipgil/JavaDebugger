@@ -28,10 +28,17 @@ public class DebuggerTranslator implements Translator {
 			final String methodName = method.getName();
 			final String template =
 					"{"+
-					"  "+DebugMonitor.class.getName()+".record(\"%s.%s\", $args);"+
+					"  "+DebugMonitor.class.getName()+".enterMethod(\"%s.%s\", $args);"+
 					//"  $_ = $proceed($$);"+
 					"}";
 			method.insertBefore(String.format(template, className, methodName));
+			
+			final String templateAfter =
+					"{"+
+					"  "+DebugMonitor.class.getName()+".leaveMethod();"+
+					//"  $_ = $proceed($$);"+
+					"}";
+			method.insertAfter(templateAfter);
 			
 			/*method.instrument(new ExprEditor() {
 				public void edit(MethodCall mc) {

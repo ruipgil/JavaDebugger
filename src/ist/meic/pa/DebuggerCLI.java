@@ -3,11 +3,12 @@ package ist.meic.pa;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 
 import javassist.CannotCompileException;
 import javassist.ClassPool;
-import javassist.CtClass;
 import javassist.Loader;
 import javassist.NotFoundException;
 
@@ -19,7 +20,8 @@ public class DebuggerCLI {
 		ClassPool pool = ClassPool.getDefault();
 		DebuggerTranslator translator = new DebuggerTranslator();
 		Loader cl = new Loader();
-		cl.loadClass(DebugMonitor.class.getName());
+		
+		DebugMonitorProxy debugMonitor = new DebugMonitorProxy(cl);
 		
 		try {
 			cl.addTranslator(pool, translator);
@@ -36,7 +38,7 @@ public class DebuggerCLI {
 		} catch(Throwable e) {
 			try {
 				System.out.println(e);
-				REPL();
+				REPL(debugMonitor);
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -44,10 +46,10 @@ public class DebuggerCLI {
 		}
 	}
 	
-	public static void REPL() throws IOException {
+	public static void REPL(DebugMonitorProxy debugMonitor) throws IOException {
 
 		BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
-		CommandDispatcher cmdDispatcher = new CommandDispatcher();
+		CommandDispatcher cmdDispatcher = new CommandDispatcher(debugMonitor);
 		boolean keep = false;
 		do {
 			System.out.print("DebuggerCLI:> ");
