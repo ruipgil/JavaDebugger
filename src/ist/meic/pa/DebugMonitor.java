@@ -1,5 +1,7 @@
 package ist.meic.pa;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Stack;
@@ -69,6 +71,7 @@ public class DebugMonitor {
 	
 	private static Stack<StackEntry> callHistory = new Stack<StackEntry>();
 	private static Stack<StackEntry> callStack = new Stack<StackEntry>();
+	public static Object ret;
 
 	public static void enterMethod(String methodName, Object instance, Object[] args) {
 		
@@ -100,6 +103,53 @@ public class DebugMonitor {
 		for(int i=callStack.size(); i>0; i--) {
 			StackEntry se = callStack.elementAt(i-1);
 			System.out.println(se.callSignature());
+		}
+	}
+	
+	public static void REPL(Throwable t) throws Throwable {
+		BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
+		System.out.println(t);
+		do {
+			System.out.print("DebuggerCLI:>");
+			String[] command = readLine(input).split(" ");
+			
+			if(command[0].equals("Abort")){
+				System.exit(1);
+			} else if(command[0].equals("Info")) {
+				info();
+			} else if(command[0].equals("Throw")) {
+				throw t;
+			} else if(command[0].equals("Get") && command.length > 1) {
+				System.out.println("TODO");
+			} else if(command[0].equals("Set") && command.length > 2) {
+				System.out.println("TODO");
+			} else if(command[0].equals("Return") && command.length > 1) {
+				setReturn((Object)command[1]);
+				return;
+			} else if(command[0].equals("Retry")) {
+				System.out.println("RETRY");
+			} else {
+				System.out.println("Invalid command");
+			}
+
+		} while(true);
+	}
+	
+	public static void setReturn(Object r) {
+		ret = r;
+	}
+	public static Object getReturn() {
+		return ret;
+	}
+	public static boolean hasReturn() {
+		return ret != null;
+	}
+	
+	public static String readLine(BufferedReader input) {
+		try {
+			return input.readLine();
+		} catch(Exception e) {
+			return "";
 		}
 	}
 

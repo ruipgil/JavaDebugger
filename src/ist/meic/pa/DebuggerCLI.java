@@ -36,13 +36,13 @@ public class DebuggerCLI {
 		try {
 			cl.run(className, restArgs);
 		} catch(Throwable e) {
-			try {
+			/*try {
 				System.out.println(e);
 				REPL(debugMonitor);
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
-			}
+			}*/
 		}
 	}
 	

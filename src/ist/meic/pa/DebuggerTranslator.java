@@ -21,8 +21,25 @@ public class DebuggerTranslator implements Translator {
 		CtClass ctClass = pool.get(className);
 		CtMethod[] methods = ctClass.getDeclaredMethods();
 		CtClass expectionType = ClassPool.getDefault().get("java.lang.Exception");
+		
+		String debugMonitor = DebugMonitor.class.getName();
 		for(CtMethod method : methods) {
-			method.addCatch("{ throw $e; }", expectionType );
+
+			method.addCatch(
+					"{"+
+						debugMonitor+".REPL($e);"+
+						/*"if( "+debugMonitor+".hasReturn() ) {"+
+							debugMonitor+".setReturn(null);"+
+					    	//"System.out.println(\"---\");"+
+					    	//"throw $e;"+
+					    	"return ($r)"+debugMonitor+".getReturn();"+
+					    	//"return ($r)("+debugMonitor+".getReturn());"+
+					    "} else {"+*/
+					    	//"System.out.println(\"+++\");"+
+							"throw $e;"+
+					    //"}"+
+					"}",
+					expectionType );
 
 			final String methodName = method.getName();
 			
