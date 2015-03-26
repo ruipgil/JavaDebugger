@@ -214,20 +214,19 @@ public class DebugMonitor {
 		StackEntry top = callStack.lastElement();
 		Field[] fields = top.getInstance().getClass().getDeclaredFields();
 		for(Field f : fields){
-			//TODO verificar se � a variavel de input da funcao (esta a retornar valores de todas);
+			if(str.equals(f.getName())){
 			f.setAccessible(true);;
 				try {
-					System.out.println("Field: "+ f.getName() + " value: " + f.getInt(top.getInstance()));
+					System.out.println(f.get(top.getInstance()));
 				} catch (IllegalArgumentException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (IllegalAccessException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+			}
 		}
 	}
-	
+
 	public static void REPL(Throwable t) throws Throwable {
 		BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 		System.out.println(t);
