@@ -56,6 +56,10 @@ public class DebugMonitor {
 		}
 		
 		public String instanceFields() {
+			if(instance == null) {
+				return "";
+			}
+			
 			Field[] fields = instance.getClass().getDeclaredFields();
 			String str = "";
 			for(Field field : fields) {
@@ -93,14 +97,15 @@ public class DebugMonitor {
 		StackEntry top = callStack.lastElement();
 		
 		Object calledObject = top.getInstance();
-		System.out.print("Called Object:");
+
 		if(calledObject==null) {
 			System.out.println("null");
 		}else{
 			System.out.println(calledObject.toString());
 		}
 		
-		System.out.println("       Fields:"+top.instanceFields());
+		String fields = top.instanceFields();
+		System.out.println("       Fields:"+fields);
 		
 		System.out.println("Call stack:");
 		for(int i=callStack.size(); i>0; i--) {
@@ -173,7 +178,7 @@ public class DebugMonitor {
 	
 	public static Object methodCall(String currentMethod, Object target, Object[] args, String classToCall, String methodToCall, String signature) throws Throwable {
 		System.out.printf("Enter info \n\tname:%s\n\ttarget:%s\n\targs:%s\n\tclassToCall:%s\n\tmethodToCall:%s\n",
-				currentMethod.toString(), target.toString(), args.toString(), classToCall.toString(), methodToCall.toString());
+				currentMethod.toString(), target, args.toString(), classToCall.toString(), methodToCall.toString());
 		enterMethod(classToCall+"."+methodToCall, target, args);
 		
 		//System.out.println("SIGNATURE: " + signature); //String like (I)D

@@ -13,7 +13,7 @@ public class DebuggerCLI {
 		String[] restArgs = Arrays.copyOfRange(args, 1, args.length);
 		
 		ClassPool pool = ClassPool.getDefault();
-		DebuggerTranslator translator = new DebuggerTranslator();
+		DebuggerTranslator translator = new DebuggerTranslator(className);
 		Loader cl = new Loader();
 		
 		try {
@@ -27,10 +27,13 @@ public class DebuggerCLI {
 			try {
 				cl.run(className, restArgs);
 			} catch(Throwable e) {
-				if(!e.getClass().getName().equals(DebuggerRetryException.class.getName())) {
-					return;
+				if(e.getClass().getName().equals(DebuggerRetryException.class.getName())) {
+					continue;
 				}
+				//unexpected throw, or simply, thrown from main
+				System.out.println(e);
 			}
+			break;
 		}
 	}
 }

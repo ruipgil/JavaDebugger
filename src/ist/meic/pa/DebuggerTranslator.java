@@ -4,6 +4,7 @@ import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
+import javassist.CtNewMethod;
 import javassist.Modifier;
 import javassist.NotFoundException;
 import javassist.Translator;
@@ -11,6 +12,11 @@ import javassist.expr.ExprEditor;
 import javassist.expr.MethodCall;
 
 public class DebuggerTranslator implements Translator {
+	
+	String mainClass;
+	public DebuggerTranslator(String mainClass) {
+		this.mainClass = mainClass; 
+	}
 
 	/**
 	 * When a class is loaded, each method should be:
@@ -25,14 +31,28 @@ public class DebuggerTranslator implements Translator {
 		CtMethod[] methods = ctClass.getDeclaredMethods();
 		CtClass exceptionType = ClassPool.getDefault().get(
 				"java.lang.Exception");
-
+		
 		try {
 			for (CtMethod method : methods) {
+				
 				//surround(method);
-				method.addCatch("{ throw $e; }", exceptionType);
+				//method.addCatch("{ throw $e; }", exceptionType);
 				methodCall(method);
 				
-				// method.setModifier PUBLIC ??
+				if(method.getName().equals("main") && ctClass.getName().equals(mainClass)) {
+					/*method.insertBefore("{ "+DebugMonitor.class.getName()+".enterMethod(\""+className+"."+method.getName()+"\", null, $args); }");
+					method.insertAfter("{ "+DebugMonitor.class.getName()+".leaveMethod(); }");
+					method.addCatch("{ throw $e; }", exceptionType);*/
+					String name = method.getName();
+					String newName = name+"$original";
+					final String completeMethodName = method.getDeclaringClass().getName()+"." + method.getName();
+					method.setName(newName);
+					method = CtNewMethod.copy(method, name, ctClass, null);
+
+					method.setBody("{ "+DebugMonitor.class.getName()+".methodCall(\""+method.getDeclaringClass()+".new\", null, $args, \""+method.getDeclaringClass().getName()+"\", \""+newName+"\", \""+method.getSignature()+"\"); }");
+					//method.setBody("{ System.out.println(\"djhasdkjsah\"); }");
+					ctClass.addMethod(method);
+				}
 			}
 		} catch (CannotCompileException e) {
 			// TODO Auto-generated catch block
