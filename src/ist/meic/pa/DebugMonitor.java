@@ -77,17 +77,19 @@ public class DebugMonitor {
 	public static void enterMethod(String methodName, Object instance, Object[] args) {
 		
 		StackEntry entry = new StackEntry(methodName, instance, args);
-		
+		System.out.printf(" ++ ADD : %s\n", entry.callSignature());
 		callStack.push(entry);
 		callHistory.push(entry);
 
 	}
 	
 	public static void leaveMethod() {
-		callStack.pop();
+		StackEntry entry = callStack.pop();
+		System.out.printf(" -- POP : %s\n", entry.callSignature());
 	}
 	
 	public static void info() {
+
 		StackEntry top = callStack.lastElement();
 		
 		Object calledObject = top.getInstance();
@@ -132,22 +134,25 @@ public class DebugMonitor {
 		}
 	}
 	
-	public static Object methodCall(String name, Object target, Object[] args, String classToCall, String methodToCall) throws Throwable {
-		// if the size is 0 we are in main.
-		System.out.println("#"+name+" "+target);
+	public static Object methodCall(String currentMethod, Object target, Object[] args, String classToCall, String methodToCall) throws Throwable {
+		
+		System.out.printf("Enter info \n\tname:%s\n\ttarget:%s\n\targs:%s\n\tclassToCall:%s\n\tmethodToCall:%s\n",
+				currentMethod.toString(), target.toString(), args.toString(), classToCall.toString(), methodToCall.toString());
+		enterMethod(classToCall+"."+methodToCall, target, args);
 		
 		Class<?>[] parameterType = new Class<?>[args.length];
 		for(int i=0; i<args.length; i++) {
-			System.out.println("Primitive: "+args[i].getClass().isPrimitive()+", "+args[i].getClass());
 			parameterType[i] = convertFromWrapperToPrimitive(args[i].getClass());
 		}
 		Class<?> c;
-		System.out.println(">"+classToCall+"."+methodToCall+" over "+target+" "+name);
+		//System.out.println(">"+classToCall+"."+methodToCall+" over "+target+" "+name);
 		try {
 			
 			c = Class.forName(classToCall);
 			Method m = c.getDeclaredMethod(methodToCall, parameterType);
-			return m.invoke(target, args);
+			Object result = m.invoke(target, args);
+			leaveMethod();
+			return result;
 		} catch (ClassNotFoundException | SecurityException | NoSuchMethodException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -156,9 +161,22 @@ public class DebugMonitor {
 			
 			e.printStackTrace();
 		} catch(InvocationTargetException e) {
-			REPL(e.getTargetException());
-		} catch (Throwable t) {
-			/*return */REPL(t);
+			Throwable efe = e.getTargetException(); 
+			if(efe.getClass().getName().equals(DebuggerRetryException.class.getName())){
+				throw efe;
+			}
+			
+			try{
+				REPL(efe);
+			}/*catch(DebuggerRetry r) {
+				System.out.println(" ???? rr");
+				leaveMethod();
+				throw r;
+			}*/catch(Throwable t) {
+				leaveMethod();
+				throw t;
+			}
+			return new Object();
 		}
 		
 		return new Object();
@@ -204,7 +222,7 @@ public class DebugMonitor {
 				setReturn((Object)command[1]);
 				return;
 			} else if(command[0].equals("Retry")) {
-				System.out.println("RETRY");
+				throw new DebuggerRetryException();
 			} else {
 				System.out.println("Invalid command");
 			}

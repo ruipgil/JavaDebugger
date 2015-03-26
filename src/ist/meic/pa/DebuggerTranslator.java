@@ -61,19 +61,21 @@ public class DebuggerTranslator implements Translator {
 	
 	private void methodCall(CtMethod method) throws CannotCompileException {
 		final String debugMonitor = DebugMonitor.class.getName();
-		final String completeMethodName = method.getClass().getName() + "." + method.getName();
+		final String completeMethodName = method.getDeclaringClass().getName()+"." + method.getName();
 		final boolean isStatic = Modifier.isStatic(method.getModifiers());
 
 		method.instrument(new ExprEditor() {
 			public void edit(MethodCall mc) {
-				//System.out.println(mc.getClassName());
+
+				if(completeMethodName.startsWith("ist.meic.pa.") || completeMethodName.startsWith("javassist.")) {
+					System.out.println("  - Skipping "+mc.getClassName());
+					return;
+				}
+
 				System.out.println("  + Injecting in "+mc.getClassName());
 				final String template = 
 						"{"+
-						DebugMonitor.class.getName() + ".enterMethod(\""+completeMethodName+"\", " + (isStatic ? null : "$0") + ", $args);" +
 						"  $_ = ($r)"+debugMonitor+".methodCall(\""+completeMethodName+"\", $0, $args, \""+mc.getClassName()+"\", \""+mc.getMethodName()+"\");"+
-						//"  $_ = $proceed($$);"+
-						DebugMonitor.class.getName() + ".leaveMethod();" +
 						"}";
 				try {
 					mc.replace(template);
