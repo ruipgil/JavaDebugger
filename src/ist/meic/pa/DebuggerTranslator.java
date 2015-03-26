@@ -4,75 +4,89 @@ import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
+import javassist.Modifier;
 import javassist.NotFoundException;
 import javassist.Translator;
-import javassist.Modifier;
+import javassist.expr.ExprEditor;
+import javassist.expr.MethodCall;
 
 public class DebuggerTranslator implements Translator {
 
 	/**
-	 * When a class is loaded, each method should be:<ul>
+	 * When a class is loaded, each method should be:
+	 * <ul>
 	 * <li>surrounded by a try-catch
-	 * <li>the parameters with which it was called must be recorded 
+	 * <li>the parameters with which it was called must be recorded
 	 */
 	@Override
-	public void onLoad(ClassPool pool, final String className) throws NotFoundException,
-			CannotCompileException {
+	public void onLoad(ClassPool pool, final String className)
+			throws NotFoundException {
 		CtClass ctClass = pool.get(className);
 		CtMethod[] methods = ctClass.getDeclaredMethods();
-		CtClass expectionType = ClassPool.getDefault().get("java.lang.Exception");
-		
-		String debugMonitor = DebugMonitor.class.getName();
-		for(CtMethod method : methods) {
+		CtClass exceptionType = ClassPool.getDefault().get(
+				"java.lang.Exception");
 
-			method.addCatch(
-					"{"+
-						debugMonitor+".REPL($e);"+
-						/*"if( "+debugMonitor+".hasReturn() ) {"+
-							debugMonitor+".setReturn(null);"+
-					    	//"System.out.println(\"---\");"+
-					    	//"throw $e;"+
-					    	"return ($r)"+debugMonitor+".getReturn();"+
-					    	//"return ($r)("+debugMonitor+".getReturn());"+
-					    "} else {"+*/
-					    	//"System.out.println(\"+++\");"+
-							"throw $e;"+
-					    //"}"+
-					"}",
-					expectionType );
-
-			final String methodName = method.getName();
-			
-			boolean isStatic = Modifier.isStatic(method.getModifiers());
-			final String template =
-					"{"+
-					"  "+DebugMonitor.class.getName()+".enterMethod(\"%s.%s\", "+(isStatic?null:"$0")+", $args);"+
-					//"  $_ = $proceed($$);"+
-					"}";
-			method.insertBefore(String.format(template, className, methodName));
-			
-			/*method.instrument(new ExprEditor() {
-				public void edit(MethodCall mc) {
-					try {
-						mc.replace(String.format(template, className, methodName));
-					} catch (CannotCompileException e) {
-						e.printStackTrace();
-					}
-				}
-			});*/
-			
-			final String templateAfter =
-					"{"+
-					"  "+DebugMonitor.class.getName()+".leaveMethod();"+
-					"}";
-			method.insertAfter(templateAfter);
-			
-			//method.setModifier PUBLIC
+		try {
+			for (CtMethod method : methods) {
+				//surround(method);
+				method.addCatch("{ throw $e; }", exceptionType);
+				methodCall(method);
+				
+				// method.setModifier PUBLIC ??
+			}
+		} catch (CannotCompileException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return;
 		}
+	}
+	
+	private void surround(CtMethod method) throws CannotCompileException {
+		String completeMethodName = method.getClass().getName() + "." + method.getName();
+		boolean isStatic = Modifier.isStatic(method.getModifiers());
+		final String before =
+				"{"
+				+ DebugMonitor.class.getName() + ".enterMethod(\""+completeMethodName+"\", " + (isStatic ? null : "$0") + ", $args);"
+				+ "$_ = $proceed($$);"+
+				"}";
+		method.insertBefore(before);
+		
+		final String after =
+				"{"
+				+ "$_ = $proceed($$);"
+				+ DebugMonitor.class.getName() + ".leaveMethod();" +
+				"}";
+		method.insertAfter(after);
+	}
+	
+	private void methodCall(CtMethod method) throws CannotCompileException {
+		final String debugMonitor = DebugMonitor.class.getName();
+		final String completeMethodName = method.getClass().getName() + "." + method.getName();
+		final boolean isStatic = Modifier.isStatic(method.getModifiers());
+
+		method.instrument(new ExprEditor() {
+			public void edit(MethodCall mc) {
+				//System.out.println(mc.getClassName());
+				System.out.println("  + Injecting in "+mc.getClassName());
+				final String template = 
+						"{"+
+						DebugMonitor.class.getName() + ".enterMethod(\""+completeMethodName+"\", " + (isStatic ? null : "$0") + ", $args);" +
+						"  $_ = ($r)"+debugMonitor+".methodCall(\""+completeMethodName+"\", $0, $args, \""+mc.getClassName()+"\", \""+mc.getMethodName()+"\");"+
+						//"  $_ = $proceed($$);"+
+						DebugMonitor.class.getName() + ".leaveMethod();" +
+						"}";
+				try {
+					mc.replace(template);
+				} catch (CannotCompileException e) {
+					e.printStackTrace();
+				}
+			}
+		});
 	}
 
 	@Override
 	public void start(ClassPool arg0) throws NotFoundException,
-			CannotCompileException {}
-	
+			CannotCompileException {
+	}
+
 }

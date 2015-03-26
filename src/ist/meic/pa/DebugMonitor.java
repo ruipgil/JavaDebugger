@@ -3,6 +3,8 @@ package ist.meic.pa;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Stack;
 
@@ -104,6 +106,37 @@ public class DebugMonitor {
 			StackEntry se = callStack.elementAt(i-1);
 			System.out.println(se.callSignature());
 		}
+	}
+	
+	public static Object methodCall(String name, Object target, Object[] args, String classToCall, String methodToCall) throws Throwable {
+		// if the size is 0 we are in main.
+		System.out.println("#"+name+" "+target);
+		
+		Class<?>[] parameterType = new Class<?>[args.length];
+		for(int i=0; i<args.length; i++) {
+			parameterType[i] = args[i].getClass();
+		}
+		Class<?> c;
+		System.out.println(">"+classToCall+"."+methodToCall+" over "+target+" "+name);
+		try {
+			
+			c = Class.forName(classToCall);
+			Method m = c.getDeclaredMethod(methodToCall, parameterType);
+			return m.invoke(target, args);
+		} catch (ClassNotFoundException | SecurityException | NoSuchMethodException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalArgumentException | IllegalAccessException
+				| InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			
+			e.printStackTrace();
+		} catch (Throwable t) {
+			/*return */REPL(t);
+		}
+		
+		return new Object();
+
 	}
 	
 	public static void REPL(Throwable t) throws Throwable {

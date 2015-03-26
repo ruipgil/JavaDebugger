@@ -21,7 +21,12 @@ public class DebuggerCLI {
 		DebuggerTranslator translator = new DebuggerTranslator();
 		Loader cl = new Loader();
 		
-		DebugMonitorProxy debugMonitor = new DebugMonitorProxy(cl);
+		try {
+			cl.loadClass(DebugMonitor.class.getName());
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		try {
 			cl.addTranslator(pool, translator);
@@ -44,23 +49,5 @@ public class DebuggerCLI {
 				e1.printStackTrace();
 			}*/
 		}
-	}
-	
-	public static void REPL(DebugMonitorProxy debugMonitor) throws IOException {
-
-		BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
-		CommandDispatcher cmdDispatcher = new CommandDispatcher(debugMonitor);
-		boolean keep = false;
-		do {
-			System.out.print("DebuggerCLI:> ");
-			String[] command = input.readLine().split(" ");
-			try{
-				keep = !cmdDispatcher.exec(command);
-			} catch(Throwable t) {
-				System.out.println(t);
-				keep = true;
-			}
-		} while(keep);
-
 	}
 }
