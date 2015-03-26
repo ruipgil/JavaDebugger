@@ -77,17 +77,19 @@ public class DebugMonitor {
 	public static void enterMethod(String methodName, Object instance, Object[] args) {
 		
 		StackEntry entry = new StackEntry(methodName, instance, args);
-		
+		System.out.printf(" ++ ADD : %s\n", entry.callSignature());
 		callStack.push(entry);
 		callHistory.push(entry);
 
 	}
 	
 	public static void leaveMethod() {
-		callStack.pop();
+		StackEntry entry = callStack.pop();
+		System.out.printf(" -- POP : %s\n", entry.callSignature());
 	}
 	
 	public static void info() {
+
 		StackEntry top = callStack.lastElement();
 		
 		Object calledObject = top.getInstance();
@@ -169,9 +171,11 @@ public class DebugMonitor {
 		return null;
 	}
 	
-	public static Object methodCall(String name, Object target, Object[] args, String classToCall, String methodToCall, String signature) throws Throwable {
-		// if the size is 0 we are in main.
-		System.out.println("#"+name+" "+target);
+	public static Object methodCall(String currentMethod, Object target, Object[] args, String classToCall, String methodToCall, String signature) throws Throwable {
+		System.out.printf("Enter info \n\tname:%s\n\ttarget:%s\n\targs:%s\n\tclassToCall:%s\n\tmethodToCall:%s\n",
+				currentMethod.toString(), target.toString(), args.toString(), classToCall.toString(), methodToCall.toString());
+		enterMethod(classToCall+"."+methodToCall, target, args);
+		
 		//System.out.println("SIGNATURE: " + signature); //String like (I)D
 		Class<?>[] parameterType = new Class<?>[args.length];
 		for(int i=0; i<args.length; i++) {
@@ -186,13 +190,15 @@ public class DebugMonitor {
 			signature = nextSigType(signature);
 		}
 		Class<?> c;
-		System.out.println(">"+classToCall+"."+methodToCall+" over "+target+" "+name);
+		//System.out.println(">"+classToCall+"."+methodToCall+" over "+target+" "+name);
 		try {
 			
 			c = Class.forName(classToCall);
 			Method m = c.getDeclaredMethod(methodToCall, parameterType);
 			m.setAccessible(true);
-			return m.invoke(target, args);
+			Object result = m.invoke(target, args);
+			leaveMethod();
+			return result;
 		} catch (ClassNotFoundException | SecurityException | NoSuchMethodException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -201,9 +207,24 @@ public class DebugMonitor {
 			
 			e.printStackTrace();
 		} catch(InvocationTargetException e) {
-			return REPL(e.getTargetException(), signature);
-		} catch (Throwable t) {
-			return REPL(t, signature);
+
+			Throwable efe = e.getTargetException(); 
+			if(efe.getClass().getName().equals(DebuggerRetryException.class.getName())){
+				throw efe;
+			}
+			
+			try{
+				return REPL(efe, signature);
+			}/*catch(DebuggerRetry r) {
+				System.out.println(" ???? rr");
+				leaveMethod();
+				throw r;
+			}*/catch(Throwable t) {
+				leaveMethod();
+				throw t;
+			}
+			return new Object();
+
 		}
 		
 		return new Object();
@@ -212,23 +233,28 @@ public class DebugMonitor {
 
 	public static void get(String str){
 		StackEntry top = callStack.lastElement();
-		Field[] fields = top.getInstance().getClass().getDeclaredFields();
+		Object instance = top.getInstance();
+		Field[] fields = instance.getClass().getDeclaredFields();
 		for(Field f : fields){
-			//TODO verificar se � a variavel de input da funcao (esta a retornar valores de todas);
+			if(str.equals(f.getName())){
 			f.setAccessible(true);;
 				try {
-					System.out.println("Field: "+ f.getName() + " value: " + f.getInt(top.getInstance()));
+					System.out.println(f.get(instance));
 				} catch (IllegalArgumentException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (IllegalAccessException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+			}
 		}
 	}
-	
+
+	public static void set(String name, Object obj){
+		
+		
+	}
 	public static Object REPL(Throwable t, String signature) throws Throwable {
+
 		BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 		System.out.println(t);
 		do {
@@ -248,7 +274,7 @@ public class DebugMonitor {
 			} else if(command[0].equals("Return") && command.length > 1) {
 				return returnCmd(command[1], signature); //Ver se é string int etc
 			} else if(command[0].equals("Retry")) {
-				System.out.println("RETRY");
+				throw new DebuggerRetryException();
 			} else {
 				System.out.println("Invalid command");
 			}
