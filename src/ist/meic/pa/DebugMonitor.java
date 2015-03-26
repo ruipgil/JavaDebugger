@@ -134,15 +134,60 @@ public class DebugMonitor {
 		}
 	}
 	
-	public static Object methodCall(String currentMethod, Object target, Object[] args, String classToCall, String methodToCall) throws Throwable {
-		
+	public static boolean isPrimitive (char c) {
+		if(Character.toString(c).equals("Z") || Character.toString(c).equals("B")
+				|| Character.toString(c).equals("C") || Character.toString(c).equals("S")
+				|| Character.toString(c).equals("I") || Character.toString(c).equals("J")
+				|| Character.toString(c).equals("F") || Character.toString(c).equals("D")
+				|| Character.toString(c).equals("V")) {	
+				return true;
+		} else{
+			return false;
+		}
+	}
+	
+	public static String nextSigType (String sig) {
+		if(isPrimitive(sig.charAt(1))){
+			StringBuilder sb = new StringBuilder(sig);
+			sb.deleteCharAt(1);
+			return sb.toString();
+		} else if (Character.toString(sig.charAt(1)).equals("L")){
+			String[] parts = sig.split(";" , 2);
+			return "(" + parts[1];
+		} else if (Character.toString(sig.charAt(1)).equals("[")){
+			/**
+			 * String is like "([[[[IDI..." We want to remove all instances of "[" and the next letter also
+			 */
+			while(Character.toString(sig.charAt(1)).equals("[")){
+				StringBuilder sb = new StringBuilder(sig);
+				sb.deleteCharAt(1);
+				sig = sb.toString();
+			}
+			StringBuilder sb = new StringBuilder(sig);
+			sb.deleteCharAt(1);
+			return sb.toString();
+			
+		}
+		return null;
+	}
+	
+	public static Object methodCall(String currentMethod, Object target, Object[] args, String classToCall, String methodToCall, String signature) throws Throwable {
 		System.out.printf("Enter info \n\tname:%s\n\ttarget:%s\n\targs:%s\n\tclassToCall:%s\n\tmethodToCall:%s\n",
 				currentMethod.toString(), target.toString(), args.toString(), classToCall.toString(), methodToCall.toString());
 		enterMethod(classToCall+"."+methodToCall, target, args);
 		
+		//System.out.println("SIGNATURE: " + signature); //String like (I)D
 		Class<?>[] parameterType = new Class<?>[args.length];
 		for(int i=0; i<args.length; i++) {
-			parameterType[i] = convertFromWrapperToPrimitive(args[i].getClass());
+			System.out.println("Primitive: "+args[i].getClass().isPrimitive()+", "+args[i].getClass());
+			//System.out.println(Character.toString(signature.charAt(i+1)).equals("I"));
+			if( isPrimitive(signature.charAt(1)) ){
+				//System.out.println(signature.charAt(1));
+				parameterType[i] = convertFromWrapperToPrimitive(args[i].getClass());
+			} else{
+				parameterType[i] = args[i].getClass();
+			}
+			signature = nextSigType(signature);
 		}
 		Class<?> c;
 		//System.out.println(">"+classToCall+"."+methodToCall+" over "+target+" "+name);
@@ -150,6 +195,7 @@ public class DebugMonitor {
 			
 			c = Class.forName(classToCall);
 			Method m = c.getDeclaredMethod(methodToCall, parameterType);
+			m.setAccessible(true);
 			Object result = m.invoke(target, args);
 			leaveMethod();
 			return result;
@@ -185,22 +231,26 @@ public class DebugMonitor {
 
 	public static void get(String str){
 		StackEntry top = callStack.lastElement();
-		Field[] fields = top.getInstance().getClass().getDeclaredFields();
+		Object instance = top.getInstance();
+		Field[] fields = instance.getClass().getDeclaredFields();
 		for(Field f : fields){
-			//TODO verificar se � a variavel de input da funcao (esta a retornar valores de todas);
+			if(str.equals(f.getName())){
 			f.setAccessible(true);;
 				try {
-					System.out.println("Field: "+ f.getName() + " value: " + f.getInt(top.getInstance()));
+					System.out.println(f.get(instance));
 				} catch (IllegalArgumentException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (IllegalAccessException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+			}
 		}
 	}
-	
+
+	public static void set(String name, Object obj){
+		
+		
+	}
 	public static void REPL(Throwable t) throws Throwable {
 		BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 		System.out.println(t);
