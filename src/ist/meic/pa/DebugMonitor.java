@@ -212,12 +212,13 @@ public class DebugMonitor {
 
 	public static void get(String str){
 		StackEntry top = callStack.lastElement();
-		Field[] fields = top.getInstance().getClass().getDeclaredFields();
+		Object instance = top.getInstance();
+		Field[] fields = instance.getClass().getDeclaredFields();
 		for(Field f : fields){
 			if(str.equals(f.getName())){
 			f.setAccessible(true);;
 				try {
-					System.out.println(f.get(top.getInstance()));
+					System.out.println(f.get(instance));
 				} catch (IllegalArgumentException e) {
 					e.printStackTrace();
 				} catch (IllegalAccessException e) {
@@ -227,6 +228,10 @@ public class DebugMonitor {
 		}
 	}
 
+	public static void set(String name, Object obj){
+		
+		
+	}
 	public static void REPL(Throwable t) throws Throwable {
 		BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 		System.out.println(t);
