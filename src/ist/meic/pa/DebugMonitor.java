@@ -201,9 +201,9 @@ public class DebugMonitor {
 			
 			e.printStackTrace();
 		} catch(InvocationTargetException e) {
-			REPL(e.getTargetException());
+			return REPL(e.getTargetException(), signature);
 		} catch (Throwable t) {
-			/*return */REPL(t);
+			return REPL(t, signature);
 		}
 		
 		return new Object();
@@ -228,7 +228,7 @@ public class DebugMonitor {
 		}
 	}
 	
-	public static void REPL(Throwable t) throws Throwable {
+	public static Object REPL(Throwable t, String signature) throws Throwable {
 		BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 		System.out.println(t);
 		do {
@@ -246,8 +246,7 @@ public class DebugMonitor {
 			} else if(command[0].equals("Set") && command.length > 2) {
 				System.out.println("TODO");
 			} else if(command[0].equals("Return") && command.length > 1) {
-				setReturn((Object)command[1]);
-				return;
+				return returnCmd(command[1], signature); //Ver se é string int etc
 			} else if(command[0].equals("Retry")) {
 				System.out.println("RETRY");
 			} else {
@@ -257,8 +256,35 @@ public class DebugMonitor {
 		} while(true);
 	}
 	
-	public static void setReturn(Object r) {
-		ret = r;
+	public static Object returnCmd(Object r, String signature) {
+		try{
+			String[] parts = signature.split("\\)", 2);
+			if(parts.equals("Z")){
+				r = new Boolean( (boolean) r);
+			}else if (parts.equals("B")){
+				r = new Byte( (byte) r);
+			}else if (parts.equals("C")){
+				r = new Character( (char) r);
+			}else if (parts.equals("S")){
+				r = new Short( (short) r);
+			}else if (parts.equals("I")){
+				r = new Integer( (int) r);
+			}else if (parts.equals("J")){
+				r = new Long( (long) r);
+			}else if (parts.equals("F")){
+				r = new Float( (float) r);
+			}else if (parts.equals("D")){
+				r = new Double( (double) r);
+			}else if (parts.equals("V")) {
+				r = null;
+			}else {
+				//Necessary?
+				r = null;
+			}
+		}catch (Throwable e){
+			e.printStackTrace();
+		}
+		return r;
 	}
 	public static Object getReturn() {
 		return ret;
