@@ -239,13 +239,13 @@ public class DebugMonitor {
 
 	}
 
-	public static void get(String str){
+	public static void get(String var){
 		StackEntry top = callStack.lastElement();
 		Object instance = top.getInstance();
 		Field[] fields = instance.getClass().getDeclaredFields();
 		for(Field f : fields){
-			if(str.equals(f.getName())){
-			f.setAccessible(true);;
+			if(var.equals(f.getName())){
+			f.setAccessible(true);
 				try {
 					System.out.println(f.get(instance));
 				} catch (IllegalArgumentException e) {
@@ -257,10 +257,56 @@ public class DebugMonitor {
 		}
 	}
 
-	public static void set(String name, Object obj){
-		
-		
+	public static void set(String var, String value){
+		StackEntry top = callStack.lastElement();
+		Object instance = top.getInstance();
+		Field[] fields = instance.getClass().getDeclaredFields();
+		for(Field f : fields){
+			if(var.equals(f.getName())){
+				f.setAccessible(true);
+				String type = f.getType().getName();
+				if (type == null){
+					return;
+				}
+				try {
+					Object obj;
+					switch(type) {
+					case "double": 
+						obj = Double.valueOf(value);
+						break;
+					case "int":
+						obj = Integer.valueOf(value);
+						break;
+					case "long":
+						obj = Long.valueOf(value);
+						break;
+					case "short":
+						obj = Short.valueOf(value);
+						break;
+					case "float":
+						obj = Float.valueOf(value);
+						break;
+					case "boolean":
+						obj = Boolean.valueOf(value);
+						break;
+					default:
+						obj = value;
+						break;
+					}
+					f.set(instance, obj);
+
+				}catch(NumberFormatException e){
+					System.out.println("The value you want to assign is not from type " + type );
+				}catch (IllegalArgumentException e) {
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					e.printStackTrace();
+				}		
+			}
+
+		}
 	}
+		
 	public static Object REPL(Throwable t, String signature) throws Throwable {
 
 		BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
@@ -278,7 +324,7 @@ public class DebugMonitor {
 			} else if(command[0].equals("Get") && command.length > 1) {
 				get(command[1]);
 			} else if(command[0].equals("Set") && command.length > 2) {
-				System.out.println("TODO");
+				set(command[1],command[2]);
 			} else if(command[0].equals("Return") && command.length > 1) {
 				return returnCmd(command[1], signature); //Ver se é string int etc
 			} else if(command[0].equals("Retry")) {
