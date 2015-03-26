@@ -98,6 +98,7 @@ public class DebugMonitor {
 		
 		Object calledObject = top.getInstance();
 
+		System.out.println("Called Object:");
 		if(calledObject==null) {
 			System.out.println("null");
 		}else{
