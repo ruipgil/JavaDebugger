@@ -202,6 +202,7 @@ public class DebugMonitor {
 			Method m = c.getDeclaredMethod(methodToCall, parameterType);
 			m.setAccessible(true);
 			Object result = m.invoke(target, args);
+			System.out.println("(((((("+result);
 			leaveMethod();
 			return result;
 		} catch (ClassNotFoundException | SecurityException | NoSuchMethodException e) {
@@ -212,13 +213,16 @@ public class DebugMonitor {
 			
 			e.printStackTrace();
 		} catch(InvocationTargetException e) {
+
 			Throwable efe = e.getTargetException(); 
 			if(efe.getClass().getName().equals(DebuggerRetryException.class.getName())){
 				throw efe;
 			}
 			
 			try{
-				REPL(efe);
+				Object result = REPL(efe, signature);
+				System.out.println("&&&&&&&&&&& "+result);
+				return result;
 			}/*catch(DebuggerRetry r) {
 				System.out.println(" ???? rr");
 				leaveMethod();
@@ -227,7 +231,7 @@ public class DebugMonitor {
 				leaveMethod();
 				throw t;
 			}
-			return new Object();
+
 		}
 		
 		return new Object();
@@ -256,7 +260,8 @@ public class DebugMonitor {
 		
 		
 	}
-	public static void REPL(Throwable t) throws Throwable {
+	public static Object REPL(Throwable t, String signature) throws Throwable {
+
 		BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 		System.out.println(t);
 		do {
@@ -274,8 +279,7 @@ public class DebugMonitor {
 			} else if(command[0].equals("Set") && command.length > 2) {
 				System.out.println("TODO");
 			} else if(command[0].equals("Return") && command.length > 1) {
-				setReturn((Object)command[1]);
-				return;
+				return returnCmd(command[1], signature); //Ver se é string int etc
 			} else if(command[0].equals("Retry")) {
 				throw new DebuggerRetryException();
 			} else {
@@ -285,8 +289,39 @@ public class DebugMonitor {
 		} while(true);
 	}
 	
-	public static void setReturn(Object r) {
-		ret = r;
+	public static Object returnCmd(Object r, String signature) {
+		Object result = new Object();
+		try{
+			String s = (String)r;
+
+			String[] parts = signature.split("\\)", 2);
+			if(parts[1].equals("Z")){
+				result = new Boolean(s);
+			}else if (parts[1].equals("B")){
+				result = new Byte(s);
+			}else if (parts[1].equals("C")){
+				result = new Character(s.charAt(0));
+			}else if (parts[1].equals("S")){
+				result = new Short(s);
+			}else if (parts[1].equals("I")){
+				result = new Integer(s);
+			}else if (parts[1].equals("J")){
+				result = new Long(s);
+			}else if (parts[1].equals("F")){
+				result = new Float(s);
+			}else if (parts[1].equals("D")){
+				result = new Double(s);
+			}else if (parts[1].equals("V")) {
+				result = null;
+			}else {
+				
+				//Necessary?
+				result = null;
+			}
+		}catch (Throwable e){
+			e.printStackTrace();
+		}
+		return result;
 	}
 	public static Object getReturn() {
 		return ret;
