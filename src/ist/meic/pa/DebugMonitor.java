@@ -197,6 +197,7 @@ public class DebugMonitor {
 			Method m = c.getDeclaredMethod(methodToCall, parameterType);
 			m.setAccessible(true);
 			Object result = m.invoke(target, args);
+			System.out.println("(((((("+result);
 			leaveMethod();
 			return result;
 		} catch (ClassNotFoundException | SecurityException | NoSuchMethodException e) {
@@ -214,7 +215,9 @@ public class DebugMonitor {
 			}
 			
 			try{
-				return REPL(efe, signature);
+				Object result = REPL(efe, signature);
+				System.out.println("&&&&&&&&&&& "+result);
+				return result;
 			}/*catch(DebuggerRetry r) {
 				System.out.println(" ???? rr");
 				leaveMethod();
@@ -223,7 +226,6 @@ public class DebugMonitor {
 				leaveMethod();
 				throw t;
 			}
-			return new Object();
 
 		}
 		
@@ -283,34 +285,38 @@ public class DebugMonitor {
 	}
 	
 	public static Object returnCmd(Object r, String signature) {
+		Object result = new Object();
 		try{
+			String s = (String)r;
+
 			String[] parts = signature.split("\\)", 2);
-			if(parts.equals("Z")){
-				r = new Boolean( (boolean) r);
-			}else if (parts.equals("B")){
-				r = new Byte( (byte) r);
-			}else if (parts.equals("C")){
-				r = new Character( (char) r);
-			}else if (parts.equals("S")){
-				r = new Short( (short) r);
-			}else if (parts.equals("I")){
-				r = new Integer( (int) r);
-			}else if (parts.equals("J")){
-				r = new Long( (long) r);
-			}else if (parts.equals("F")){
-				r = new Float( (float) r);
-			}else if (parts.equals("D")){
-				r = new Double( (double) r);
-			}else if (parts.equals("V")) {
-				r = null;
+			if(parts[1].equals("Z")){
+				result = new Boolean(s);
+			}else if (parts[1].equals("B")){
+				result = new Byte(s);
+			}else if (parts[1].equals("C")){
+				result = new Character(s.charAt(0));
+			}else if (parts[1].equals("S")){
+				result = new Short(s);
+			}else if (parts[1].equals("I")){
+				result = new Integer(s);
+			}else if (parts[1].equals("J")){
+				result = new Long(s);
+			}else if (parts[1].equals("F")){
+				result = new Float(s);
+			}else if (parts[1].equals("D")){
+				result = new Double(s);
+			}else if (parts[1].equals("V")) {
+				result = null;
 			}else {
+				
 				//Necessary?
-				r = null;
+				result = null;
 			}
 		}catch (Throwable e){
 			e.printStackTrace();
 		}
-		return r;
+		return result;
 	}
 	public static Object getReturn() {
 		return ret;
