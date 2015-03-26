@@ -122,6 +122,7 @@ public class DebugMonitor {
 			
 			c = Class.forName(classToCall);
 			Method m = c.getDeclaredMethod(methodToCall, parameterType);
+			m.setAccessible(true);
 			return m.invoke(target, args);
 		} catch (ClassNotFoundException | SecurityException | NoSuchMethodException e) {
 			// TODO Auto-generated catch block
