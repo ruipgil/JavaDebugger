@@ -6,6 +6,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Stack;
 
 public class DebugMonitor {
@@ -68,9 +70,6 @@ public class DebugMonitor {
 		
 	}
 	
-	/*private static Stack<StackEntry> callHistory = new Stack<StackEntry>();
-	private static Stack<StackEntry> callStack = new Stack<StackEntry>();*/
-	
 	private static Stack<StackEntry> callHistory = new Stack<StackEntry>();
 	private static Stack<StackEntry> callStack = new Stack<StackEntry>();
 	public static Object ret;
@@ -108,13 +107,39 @@ public class DebugMonitor {
 		}
 	}
 	
+	public static Class<?> convertFromWrapperToPrimitive(Class<?> wrapper) {
+		String wName = wrapper.getName();
+		if(wName.equals("java.lang.Integer")) {
+			return int.class;
+		} else if(wName.equals("java.lang.Float")) {
+			return float.class;
+		} else if(wName.equals("java.lang.Double")) {
+			return double.class;
+		} else if(wName.equals("java.lang.Long")) {
+			return long.class;
+		} else if(wName.equals("java.lang.Boolean")) {
+			return boolean.class;
+		} else if(wName.equals("java.lang.Character")) {
+			return char.class;
+		} else if(wName.equals("java.lang.Byte")) {
+			return byte.class;
+		} else if(wName.equals("java.lang.Void")) {
+			return void.class;
+		} else if(wName.equals("java.lang.Short")) {
+			return short.class;
+		} else {
+			return wrapper;
+		}
+	}
+	
 	public static Object methodCall(String name, Object target, Object[] args, String classToCall, String methodToCall) throws Throwable {
 		// if the size is 0 we are in main.
 		System.out.println("#"+name+" "+target);
 		
 		Class<?>[] parameterType = new Class<?>[args.length];
 		for(int i=0; i<args.length; i++) {
-			parameterType[i] = args[i].getClass();
+			System.out.println("Primitive: "+args[i].getClass().isPrimitive()+", "+args[i].getClass());
+			parameterType[i] = convertFromWrapperToPrimitive(args[i].getClass());
 		}
 		Class<?> c;
 		System.out.println(">"+classToCall+"."+methodToCall+" over "+target+" "+name);
@@ -126,11 +151,12 @@ public class DebugMonitor {
 		} catch (ClassNotFoundException | SecurityException | NoSuchMethodException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (IllegalArgumentException | IllegalAccessException
-				| InvocationTargetException e) {
+		} catch (IllegalArgumentException | IllegalAccessException e) {
 			// TODO Auto-generated catch block
 			
 			e.printStackTrace();
+		} catch(InvocationTargetException e) {
+			REPL(e.getTargetException());
 		} catch (Throwable t) {
 			/*return */REPL(t);
 		}
