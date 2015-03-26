@@ -138,6 +138,24 @@ public class DebugMonitor {
 		return new Object();
 
 	}
+
+	public static void get(String str){
+		StackEntry top = callStack.lastElement();
+		Field[] fields = top.getInstance().getClass().getDeclaredFields();
+		for(Field f : fields){
+			//TODO verificar se � a variavel de input da funcao (esta a retornar valores de todas);
+			f.setAccessible(true);;
+				try {
+					System.out.println("Field: "+ f.getName() + " value: " + f.getInt(top.getInstance()));
+				} catch (IllegalArgumentException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		}
+	}
 	
 	public static void REPL(Throwable t) throws Throwable {
 		BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
@@ -153,7 +171,7 @@ public class DebugMonitor {
 			} else if(command[0].equals("Throw")) {
 				throw t;
 			} else if(command[0].equals("Get") && command.length > 1) {
-				System.out.println("TODO");
+				get(command[1]);
 			} else if(command[0].equals("Set") && command.length > 2) {
 				System.out.println("TODO");
 			} else if(command[0].equals("Return") && command.length > 1) {
