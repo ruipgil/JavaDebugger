@@ -71,7 +71,7 @@ public class DebuggerTranslator implements Translator {
 				final String template = 
 						"{"+
 						DebugMonitor.class.getName() + ".enterMethod(\""+completeMethodName+"\", " + (isStatic ? null : "$0") + ", $args);" +
-						"  $_ = ($r)"+debugMonitor+".methodCall(\""+completeMethodName+"\", $0, $args, \""+mc.getClassName()+"\", \""+mc.getMethodName()+"\");"+
+						"  $_ = ($r)"+debugMonitor+".methodCall(\""+completeMethodName+"\", $0, $args, \""+mc.getClassName()+"\", \""+mc.getMethodName() + "\"" + " , \"" + mc.getSignature() + "\" );"+
 						//"  $_ = $proceed($$);"+
 						DebugMonitor.class.getName() + ".leaveMethod();" +
 						"}";

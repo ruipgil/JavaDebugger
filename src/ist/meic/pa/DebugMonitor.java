@@ -132,14 +132,58 @@ public class DebugMonitor {
 		}
 	}
 	
-	public static Object methodCall(String name, Object target, Object[] args, String classToCall, String methodToCall) throws Throwable {
+	public static boolean isPrimitive (char c) {
+		if(Character.toString(c).equals("Z") || Character.toString(c).equals("B")
+				|| Character.toString(c).equals("C") || Character.toString(c).equals("S")
+				|| Character.toString(c).equals("I") || Character.toString(c).equals("J")
+				|| Character.toString(c).equals("F") || Character.toString(c).equals("D")
+				|| Character.toString(c).equals("V")) {	
+				return true;
+		} else{
+			return false;
+		}
+	}
+	
+	public static String nextSigType (String sig) {
+		if(isPrimitive(sig.charAt(1))){
+			StringBuilder sb = new StringBuilder(sig);
+			sb.deleteCharAt(1);
+			return sb.toString();
+		} else if (Character.toString(sig.charAt(1)).equals("L")){
+			String[] parts = sig.split(";" , 2);
+			return "(" + parts[1];
+		} else if (Character.toString(sig.charAt(1)).equals("[")){
+			/**
+			 * String is like "([[[[IDI..." We want to remove all instances of "[" and the next letter also
+			 */
+			while(Character.toString(sig.charAt(1)).equals("[")){
+				StringBuilder sb = new StringBuilder(sig);
+				sb.deleteCharAt(1);
+				sig = sb.toString();
+			}
+			StringBuilder sb = new StringBuilder(sig);
+			sb.deleteCharAt(1);
+			return sb.toString();
+			
+		}
+		return null;
+	}
+	
+	public static Object methodCall(String name, Object target, Object[] args, String classToCall, String methodToCall, String signature) throws Throwable {
 		// if the size is 0 we are in main.
 		System.out.println("#"+name+" "+target);
-		
+		//System.out.println("SIGNATURE: " + signature); //String like (I)D
 		Class<?>[] parameterType = new Class<?>[args.length];
 		for(int i=0; i<args.length; i++) {
 			System.out.println("Primitive: "+args[i].getClass().isPrimitive()+", "+args[i].getClass());
-			parameterType[i] = convertFromWrapperToPrimitive(args[i].getClass());
+			//System.out.println(Character.toString(signature.charAt(i+1)).equals("I"));
+			if( isPrimitive(signature.charAt(1)) ){
+				//System.out.println(signature.charAt(1));
+				parameterType[i] = convertFromWrapperToPrimitive(args[i].getClass());
+			} else{
+				parameterType[i] = args[i].getClass();
+			}
+			signature = nextSigType(signature);
 		}
 		Class<?> c;
 		System.out.println(">"+classToCall+"."+methodToCall+" over "+target+" "+name);
