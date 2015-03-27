@@ -269,7 +269,8 @@ public class DebugMonitor {
 					return;
 				}
 				try {
-					Object obj;
+					Object obj = null;
+					System.out.println("Type:" + type);
 					switch(type) {
 					case "double": 
 						obj = Double.valueOf(value);
@@ -289,7 +290,14 @@ public class DebugMonitor {
 					case "boolean":
 						obj = Boolean.valueOf(value);
 						break;
-					default:
+					case "char":
+						if (value.length() == 1){
+							obj = value.charAt(0);
+						}else{
+							throw new NumberFormatException();
+						}
+						break;
+					case "java.lang.String":
 						obj = value;
 						break;
 					}
