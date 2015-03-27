@@ -185,25 +185,20 @@ public class DebugMonitor {
 		//System.out.println("SIGNATURE: " + signature); //String like (I)D
 		Class<?>[] parameterType = new Class<?>[args.length];
 		for(int i=0; i<args.length; i++) {
-			System.out.println("Primitive: "+args[i].getClass().isPrimitive()+", "+args[i].getClass());
-			//System.out.println(Character.toString(signature.charAt(i+1)).equals("I"));
+			//System.out.println("Primitive: "+args[i].getClass().isPrimitive()+", "+args[i].getClass());
 			if( isPrimitive(signature.charAt(1)) ){
-				//System.out.println(signature.charAt(1));
 				parameterType[i] = convertFromWrapperToPrimitive(args[i].getClass());
 			} else{
 				parameterType[i] = args[i].getClass();
 			}
 			signature = nextSigType(signature);
 		}
-		Class<?> c;
-		//System.out.println(">"+classToCall+"."+methodToCall+" over "+target+" "+name);
+
 		try {
-			
-			c = Class.forName(classToCall);
+			Class<?> c = Class.forName(classToCall);
 			Method m = c.getDeclaredMethod(methodToCall, parameterType);
 			m.setAccessible(true);
 			Object result = m.invoke(target, args);
-			System.out.println("(((((("+result);
 			leaveMethod();
 			return result;
 		} catch (ClassNotFoundException | SecurityException | NoSuchMethodException e) {
@@ -216,19 +211,14 @@ public class DebugMonitor {
 		} catch(InvocationTargetException e) {
 
 			Throwable efe = e.getTargetException(); 
-			if(efe.getClass().getName().equals(DebuggerRetryException.class.getName())){
-				throw efe;
-			}
-			
 			try{
 				Object result = REPL(efe, signature);
-				System.out.println("&&&&&&&&&&& "+result);
-				return result;
-			}/*catch(DebuggerRetry r) {
-				System.out.println(" ???? rr");
 				leaveMethod();
-				throw r;
-			}*/catch(Throwable t) {
+				return result;
+			} catch(DebuggerRetryException r) {
+				leaveMethod();
+				return methodCall(currentMethod, target, args, classToCall, methodToCall, signature);
+			} catch(Throwable t) {
 				leaveMethod();
 				throw t;
 			}
