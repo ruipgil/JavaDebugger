@@ -29,8 +29,7 @@ public class DebuggerTranslator implements Translator {
 			throws NotFoundException {
 		CtClass ctClass = pool.get(className);
 		CtMethod[] methods = ctClass.getDeclaredMethods();
-		CtClass exceptionType = ClassPool.getDefault().get(
-				"java.lang.Exception");
+		//CtClass exceptionType = ClassPool.getDefault().get("java.lang.Exception");
 		
 		try {
 			for (CtMethod method : methods) {
@@ -45,7 +44,7 @@ public class DebuggerTranslator implements Translator {
 					method.addCatch("{ throw $e; }", exceptionType);*/
 					String name = method.getName();
 					String newName = name+"$original";
-					final String completeMethodName = method.getDeclaringClass().getName()+"." + method.getName();
+					//final String completeMethodName = method.getDeclaringClass().getName()+"." + method.getName();
 					method.setName(newName);
 					method = CtNewMethod.copy(method, name, ctClass, null);
 
@@ -61,7 +60,7 @@ public class DebuggerTranslator implements Translator {
 		}
 	}
 	
-	private void surround(CtMethod method) throws CannotCompileException {
+	/*private void surround(CtMethod method) throws CannotCompileException {
 		String completeMethodName = method.getClass().getName() + "." + method.getName();
 		boolean isStatic = Modifier.isStatic(method.getModifiers());
 		final String before =
@@ -77,22 +76,22 @@ public class DebuggerTranslator implements Translator {
 				+ DebugMonitor.class.getName() + ".leaveMethod();" +
 				"}";
 		method.insertAfter(after);
-	}
+	}*/
 	
 	private void methodCall(CtMethod method) throws CannotCompileException {
 		final String debugMonitor = DebugMonitor.class.getName();
 		final String completeMethodName = method.getDeclaringClass().getName()+"." + method.getName();
-		final boolean isStatic = Modifier.isStatic(method.getModifiers());
+		//final boolean isStatic = Modifier.isStatic(method.getModifiers());
 
 		method.instrument(new ExprEditor() {
 			public void edit(MethodCall mc) {
 
 				if(completeMethodName.startsWith("ist.meic.pa.") || completeMethodName.startsWith("javassist.")) {
-					System.out.println("  - Skipping "+mc.getClassName());
+					//System.out.println("  - Skipping "+mc.getClassName());
 					return;
 				}
 
-				System.out.println("  + Injecting in "+mc.getClassName());
+				//System.out.println("  + Injecting in "+mc.getClassName());
 				final String template = 
 						"{"+
 						"  $_ = ($r)"+debugMonitor+".methodCall(\""+completeMethodName+"\", $0, $args, \""+mc.getClassName()+"\", \""+mc.getMethodName()+"\" , \"" + mc.getSignature() + "\");"+

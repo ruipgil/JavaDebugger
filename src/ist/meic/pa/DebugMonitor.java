@@ -5,91 +5,23 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Stack;
 
 public class DebugMonitor {
-	static class StackEntry {
-		String methodName;
-		Object instance;
-		Object[] args;
-		
-		public StackEntry(String methodName, Object instance, Object[] args) {
-			this.instance = instance;
-			this.args = args;
-			this.methodName = methodName;
-		}
-		
-
-		public Object getMethodName() {
-			return methodName;
-		}
-		
-		public Object getInstance() {
-			return instance;
-		}
-
-		public Object[] getArgs() {
-			return args;
-		}
-		
-		public String argsToSignature() {
-			String str = "(";
-			boolean first = true;
-
-			for(Object arg : args) {
-				if(first) {
-					first = false;
-				} else {
-					str += ", ";
-				}
-				if(arg instanceof Object[]) {
-					str += Arrays.toString((Object[])arg);
-				}else{
-					str += arg.toString();
-				}
-			}
-			str+=")";
-			return str;
-		}
-		
-		public String instanceFields() {
-			if(instance == null) {
-				return "";
-			}
-			
-			Field[] fields = instance.getClass().getDeclaredFields();
-			String str = "";
-			for(Field field : fields) {
-				str += field.getName()+" ";
-			}
-			return str;
-		}
-		
-		public String callSignature() {
-			return methodName+argsToSignature();
-		}
-		
-	}
 	
-	private static Stack<StackEntry> callHistory = new Stack<StackEntry>();
 	private static Stack<StackEntry> callStack = new Stack<StackEntry>();
-	public static Object ret;
 
 	public static void enterMethod(String methodName, Object instance, Object[] args) {
 		
 		StackEntry entry = new StackEntry(methodName, instance, args);
-		System.out.printf(" ++ ADD : %s\n", entry.callSignature());
+		//System.out.printf(" ++ ADD : %s\n", entry.callSignature());
 		callStack.push(entry);
-		callHistory.push(entry);
 
 	}
 	
 	public static void leaveMethod() {
-		StackEntry entry = callStack.pop();
-		System.out.printf(" -- POP : %s\n", entry.callSignature());
+		/*StackEntry entry = */callStack.pop();
+		//System.out.printf(" -- POP : %s\n", entry.callSignature());
 	}
 	
 	public static void info() {
@@ -98,7 +30,7 @@ public class DebugMonitor {
 		
 		Object calledObject = top.getInstance();
 
-		System.out.println("Called Object:");
+		System.out.print("Called Object:");
 		if(calledObject==null) {
 			System.out.println("null");
 		}else{
@@ -178,8 +110,8 @@ public class DebugMonitor {
 	}
 	
 	public static Object methodCall(String currentMethod, Object target, Object[] args, String classToCall, String methodToCall, String signature) throws Throwable {
-		System.out.printf("Enter info \n\tname:%s\n\ttarget:%s\n\targs:%s\n\tclassToCall:%s\n\tmethodToCall:%s\n",
-				currentMethod.toString(), target, args.toString(), classToCall.toString(), methodToCall.toString());
+		/*System.out.printf("Enter info \n\tname:%s\n\ttarget:%s\n\targs:%s\n\tclassToCall:%s\n\tmethodToCall:%s\n",
+				currentMethod.toString(), target, args.toString(), classToCall.toString(), methodToCall.toString());*/
 		enterMethod(classToCall+"."+methodToCall, target, args);
 		
 		//System.out.println("SIGNATURE: " + signature); //String like (I)D
@@ -201,12 +133,8 @@ public class DebugMonitor {
 			Object result = m.invoke(target, args);
 			leaveMethod();
 			return result;
-		} catch (ClassNotFoundException | SecurityException | NoSuchMethodException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalArgumentException | IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			
+		} catch (ClassNotFoundException | SecurityException | NoSuchMethodException | IllegalArgumentException | IllegalAccessException e) {
+			System.out.println("Unexpected exception!");	
 			e.printStackTrace();
 		} catch(InvocationTargetException e) {
 
@@ -311,7 +239,7 @@ public class DebugMonitor {
 		System.out.println(t);
 		do {
 			System.out.print("DebuggerCLI:>");
-			String[] command = readLine(input).split(" ");
+			String[] command = Utils.readLine(input).split(" ");
 			
 			if(command[0].equals("Abort")){
 				System.exit(1);
@@ -324,7 +252,7 @@ public class DebugMonitor {
 			} else if(command[0].equals("Set") && command.length > 2) {
 				set(command[1],command[2]);
 			} else if(command[0].equals("Return") && command.length > 1) {
-				return returnCmd(command[1], signature); //Ver se é string int etc
+				return returnCmd(command[1], signature);
 			} else if(command[0].equals("Retry")) {
 				throw new DebuggerRetryException();
 			} else {
@@ -368,20 +296,5 @@ public class DebugMonitor {
 		}
 		return result;
 	}
-	public static Object getReturn() {
-		return ret;
-	}
-	public static boolean hasReturn() {
-		return ret != null;
-	}
-	
-	public static String readLine(BufferedReader input) {
-		try {
-			return input.readLine();
-		} catch(Exception e) {
-			return "";
-		}
-	}
-
 
 }
