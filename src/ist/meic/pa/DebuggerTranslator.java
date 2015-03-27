@@ -92,6 +92,7 @@ public class DebuggerTranslator implements Translator {
 				}
 
 				//System.out.println("  + Injecting in "+mc.getClassName());
+				
 				final String template = 
 						"{"+
 						"  $_ = ($r)"+debugMonitor+".methodCall(\""+completeMethodName+"\", $0, $args, \""+mc.getClassName()+"\", \""+mc.getMethodName()+"\" , \"" + mc.getSignature() + "\");"+
