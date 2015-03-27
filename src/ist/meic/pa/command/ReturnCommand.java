@@ -1,9 +1,16 @@
 package ist.meic.pa.command;
 
+import ist.meic.pa.DebugMonitor;
+import ist.meic.pa.StackEntry;
+
+import java.util.Stack;
+
 public class ReturnCommand {
-	/*public static void execute(Throwable t, String[] args) {
+	public static Object execute(Throwable t, String[] args) {
 		String r = args[0];
-		String signature = ;
+		Stack<StackEntry> callStack = DebugMonitor.getCallStack();
+		StackEntry top = callStack.lastElement();
+		String signature = top.getSignature() ;
 
 		Object result = new Object();
 		try{
@@ -37,5 +44,5 @@ public class ReturnCommand {
 			e.printStackTrace();
 		}
 		return result;
-	}*/
+	}
 }

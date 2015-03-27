@@ -20,9 +20,9 @@ public class DebugMonitor {
 		return callStack;
 	}
 
-	public static void enterMethod(String methodName, Object instance, Object[] args) {
+	public static void enterMethod(String methodName, Object instance, Object[] args, String signature) {
 		
-		StackEntry entry = new StackEntry(methodName, instance, args);
+		StackEntry entry = new StackEntry(methodName, instance, args, signature);
 		//System.out.printf(" ++ ADD : %s\n", entry.callSignature());
 		callStack.push(entry);
 
@@ -98,7 +98,7 @@ public class DebugMonitor {
 	public static Object methodCall(String currentMethod, Object target, Object[] args, String classToCall, String methodToCall, String signature) throws Throwable {
 		System.out.printf("Enter info \n\tname:%s\n\ttarget:%s\n\targs:%s\n\tclassToCall:%s\n\tmethodToCall:%s\n",
 				currentMethod.toString(), target, args.toString(), classToCall.toString(), methodToCall.toString());
-		enterMethod(classToCall+"."+methodToCall, target, args);
+		enterMethod(classToCall+"."+methodToCall, target, args, signature);
 		
 		//System.out.println("SIGNATURE: " + signature); //String like (I)D
 		Class<?>[] parameterType = new Class<?>[args.length];
