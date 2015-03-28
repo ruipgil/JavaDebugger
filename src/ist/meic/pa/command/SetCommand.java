@@ -26,7 +26,6 @@ public class SetCommand {
 
 				f.setAccessible(true);
 				String type = f.getType().getName();
-				System.out.println("Type: " + type);
 				try {
 					try {
 
@@ -46,10 +45,8 @@ public class SetCommand {
 							ctor = cl.getConstructor(parameterTypeString);
 							obj = ctor.newInstance(value);
 						}
-
 						f.set(instance, obj);
-						System.out.println("Value:" + f.get(instance));
-
+						
 					} catch (SecurityException e) {
 						e.printStackTrace();
 					} catch (IllegalArgumentException e) {
