@@ -101,16 +101,17 @@ public class DebugMonitor {
 		enterMethod(classToCall+"."+methodToCall, target, args, signature);
 		
 		//System.out.println("SIGNATURE: " + signature); //String like (I)D
+		String s = signature;
 		Class<?>[] parameterType = new Class<?>[args.length];
-		
+
 		for(int i=0; i<args.length; i++) {
 			//System.out.println("Primitive: "+args[i].getClass().isPrimitive()+", "+args[i].getClass());
-			if( isPrimitive(signature.charAt(1)) ){
+			if( isPrimitive(s.charAt(1)) ){
 				parameterType[i] = convertFromWrapperToPrimitive(args[i].getClass());
 			} else{
 				parameterType[i] = args[i].getClass();
 			}
-			signature = nextSigType(signature);
+			s = nextSigType(s);
 		}
 
 
