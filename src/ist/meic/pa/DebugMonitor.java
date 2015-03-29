@@ -128,7 +128,7 @@ public class DebugMonitor {
 
 			Throwable efe = e.getTargetException(); 
 			try{
-				Object result = REPL(efe, signature);
+				Object result = REPL(efe);
 				leaveMethod();
 				return result;
 			} catch(DebuggerRetryException r) {
@@ -145,7 +145,7 @@ public class DebugMonitor {
 
 	}
 		
-	public static Object REPL(Throwable t, String signature) throws Throwable {
+	public static Object REPL(Throwable t) throws Throwable {
 
 		BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 		System.out.println(t);
@@ -155,7 +155,8 @@ public class DebugMonitor {
 			
 			if(command[0].equals("Abort") || command[0].equals("Info")
 					|| command[0].equals("Throw") || command[0].equals("Get")
-					|| command[0].equals("Set") || command[0].equals("Retry")){
+					|| command[0].equals("Set") || command[0].equals("Retry")
+					 || command[0].equals("Return")){
 				String className = "ist.meic.pa.command."+command[0]+"Command";
 
 				try {
@@ -163,20 +164,24 @@ public class DebugMonitor {
 					Class<?> c = Class.forName(className);
 					Class<?>[] paramsType = { Throwable.class, String[].class };
 					Method m = c.getDeclaredMethod("execute", paramsType);
-					return m.invoke(null, t, args);
+					Object result = m.invoke(null, t, args);
+					if(result!=null) {
+						return result;
+					}
 				} catch (ClassNotFoundException | SecurityException | NoSuchMethodException | IllegalArgumentException | IllegalAccessException e) {
 					System.out.println("Invalid command!");
 					e.printStackTrace();
 				} catch (InvocationTargetException e) {
 					throw e.getTargetException();
 				}
+			}
 			/*} else if(command[0].equals("Get") && command.length > 1) {
 				get(command[1]);
 			} else if(command[0].equals("Set") && command.length > 2) {
 				set(command[1],command[2]);*/
-			} else if(command[0].equals("Return") && command.length > 1) {
+			/*} else if(command[0].equals("Return") && command.length > 1) {
 				return returnCmd(command[1], signature);
-			}/* else if(command[0].equals("Retry")) {
+			}*//* else if(command[0].equals("Retry")) {
 				throw new DebuggerRetryException();
 			} else {
 				System.out.println("Invalid command");

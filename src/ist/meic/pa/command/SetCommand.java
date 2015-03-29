@@ -10,7 +10,7 @@ import java.util.Stack;
 
 public class SetCommand {
 
-	public static void execute(Throwable t, String[] args)
+	public static Object execute(Throwable t, String[] args)
 			throws InputMisMatchException {
 		Stack<StackEntry> callStack = DebugMonitor.getCallStack();
 		String var = args[0];
@@ -67,8 +67,9 @@ public class SetCommand {
 				}
 
 			}
-
+		
 		}
+		return null;
 	}
 
 }

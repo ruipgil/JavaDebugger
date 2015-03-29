@@ -4,7 +4,7 @@ import ist.meic.pa.DebuggerRetryException;
 
 public class RetryCommand {
 
-	public static void execute(Throwable t, String[] args) throws Throwable {
+	public static Object execute(Throwable t, String[] args) throws Throwable {
 		throw new DebuggerRetryException();
 	}
 

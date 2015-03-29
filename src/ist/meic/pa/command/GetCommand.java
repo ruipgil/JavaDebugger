@@ -8,7 +8,7 @@ import java.util.Stack;
 
 public class GetCommand {
 	
-	public static void execute(Throwable t, String[] args) {
+	public static Object execute(Throwable t, String[] args) {
 		Stack<StackEntry> callStack = DebugMonitor.getCallStack();
 		String var = args[0];
 
@@ -27,6 +27,7 @@ public class GetCommand {
 				}
 			}
 		}
+		return null;
 	}
 
 }
