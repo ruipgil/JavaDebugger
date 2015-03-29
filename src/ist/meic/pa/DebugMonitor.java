@@ -1,15 +1,9 @@
 package ist.meic.pa;
 
-import ist.meic.pa.command.AbortCommand;
-import ist.meic.pa.command.InfoCommand;
-import ist.meic.pa.command.ThrowCommand;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.security.Signature;
 import java.util.Arrays;
 import java.util.Stack;
 
@@ -25,14 +19,12 @@ public class DebugMonitor {
 			Object[] args, String signature) {
 
 		StackEntry entry = new StackEntry(methodName, instance, args, signature);
-		// System.out.printf(" ++ ADD : %s\n", entry.callSignature());
 		callStack.push(entry);
 
 	}
 
 	public static void leaveMethod() {
-		/* StackEntry entry = */callStack.pop();
-		// System.out.printf(" -- POP : %s\n", entry.callSignature());
+		callStack.pop();
 	}
 
 	public static Class<?> convertFromWrapperToPrimitive(Class<?> wrapper) {
@@ -102,12 +94,12 @@ public class DebugMonitor {
 		return null;
 	}
 
-	public static Object methodCall(String currentMethod, Object target,
-			Object[] args, String classToCall, String methodToCall,
-			String signature) throws Throwable {
+	public static Object methodCall(Object target, Object[] args,
+			String classToCall, String methodToCall, String signature)
+			throws Throwable {
 		enterMethod(classToCall + "." + methodToCall, target, args, signature);
 
-		String s = signature; 
+		String s = signature;
 		Class<?>[] parameterType = new Class<?>[args.length];
 
 		for (int i = 0; i < args.length; i++) {
@@ -131,7 +123,7 @@ public class DebugMonitor {
 				| NoSuchMethodException | IllegalArgumentException
 				| IllegalAccessException e) {
 			System.out.println("Unexpected exception!");
-			//e.printStackTrace();
+			// e.printStackTrace();
 		} catch (InvocationTargetException e) {
 
 			Throwable efe = e.getTargetException();
@@ -141,8 +133,8 @@ public class DebugMonitor {
 				return result;
 			} catch (DebuggerRetryException r) {
 				leaveMethod();
-				return methodCall(currentMethod, target, args, classToCall,
-						methodToCall, signature);
+				return methodCall(target, args, classToCall, methodToCall,
+						signature);
 			} catch (Throwable t) {
 				leaveMethod();
 				throw t;
