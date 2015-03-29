@@ -10,6 +10,9 @@ public class GetCommand {
 	
 	public static Object execute(Throwable t, String[] args) {
 		Stack<StackEntry> callStack = DebugMonitor.getCallStack();
+		if(args.length == 0) {
+			return null;
+		}
 		String var = args[0];
 
 		StackEntry top = callStack.lastElement();

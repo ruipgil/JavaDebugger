@@ -7,6 +7,9 @@ import java.util.Stack;
 
 public class ReturnCommand {
 	public static Object execute(Throwable t, String[] args) {
+		if(args.length == 0) {
+			return null;
+		}
 		String r = args[0];
 		Stack<StackEntry> callStack = DebugMonitor.getCallStack();
 		StackEntry top = callStack.lastElement();

@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.security.Signature;
 import java.util.Arrays;
 import java.util.Stack;
 
@@ -106,6 +107,7 @@ public class DebugMonitor {
 			String signature) throws Throwable {
 		enterMethod(classToCall + "." + methodToCall, target, args, signature);
 
+		String s = signature; 
 		Class<?>[] parameterType = new Class<?>[args.length];
 
 		for (int i = 0; i < args.length; i++) {
@@ -115,7 +117,7 @@ public class DebugMonitor {
 			} else {
 				parameterType[i] = args[i].getClass();
 			}
-			signature = nextSigType(signature);
+			s = nextSigType(s);
 		}
 
 		try {
@@ -129,7 +131,7 @@ public class DebugMonitor {
 				| NoSuchMethodException | IllegalArgumentException
 				| IllegalAccessException e) {
 			System.out.println("Unexpected exception!");
-			e.printStackTrace();
+			//e.printStackTrace();
 		} catch (InvocationTargetException e) {
 
 			Throwable efe = e.getTargetException();
@@ -175,7 +177,6 @@ public class DebugMonitor {
 					| NoSuchMethodException | IllegalArgumentException
 					| IllegalAccessException e) {
 				System.out.println("Invalid command!");
-				e.printStackTrace();
 			} catch (InvocationTargetException e) {
 				throw e.getTargetException();
 			}

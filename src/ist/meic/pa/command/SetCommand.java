@@ -13,6 +13,9 @@ public class SetCommand {
 	public static Object execute(Throwable t, String[] args)
 			throws InputMisMatchException {
 		Stack<StackEntry> callStack = DebugMonitor.getCallStack();
+		if(args.length<=2) {
+			return null;
+		}
 		String var = args[0];
 		String value = args[1];
 		Class<?>[] parameterTypeString = { String.class };
