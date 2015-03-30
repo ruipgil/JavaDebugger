@@ -7,6 +7,11 @@ import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Stack;
 
+/**
+ * Return Command
+ * Returns the given value. 
+ *
+ */
 public class ReturnCommand {
 	public static HashMap<String,String> types = new HashMap<String, String>();
 	static { 
@@ -55,7 +60,6 @@ public class ReturnCommand {
 			}
 			
 		}catch (Throwable e){
-			//e.printStackTrace();
 			System.out.println("Return must be from type " + resultType.toString() );
 			return null;
 		}

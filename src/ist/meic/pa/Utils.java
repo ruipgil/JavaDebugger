@@ -2,6 +2,11 @@ package ist.meic.pa;
 
 import java.io.BufferedReader;
 
+/**
+ * Utils Class
+ * Contains all the utility functions.
+ *
+ */
 public class Utils {
 
 	public static String readLine(BufferedReader input) {

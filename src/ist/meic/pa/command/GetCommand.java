@@ -6,6 +6,12 @@ import ist.meic.pa.StackEntry;
 import java.lang.reflect.Field;
 import java.util.Stack;
 
+
+/**
+ * The Get Command 
+ * Receives a variable and return it's value 
+ *
+ */
 public class GetCommand {
 	
 	public static Object execute(Throwable t, String[] args) {

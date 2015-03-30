@@ -5,6 +5,12 @@ import ist.meic.pa.StackEntry;
 
 import java.util.Stack;
 
+/**
+ * Info Command
+ * Returns the info about the called object.
+ * Displays it's name, fields and call stack.
+ *
+ */
 public class InfoCommand {
 	public static void execute(Throwable t, String[] args) {
 		Stack<StackEntry> callStack = DebugMonitor.getCallStack();

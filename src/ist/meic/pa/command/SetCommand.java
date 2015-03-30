@@ -8,6 +8,13 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Stack;
 
+
+/**
+ * Set Command 
+ * Receives a variable and a value and sets the variable with that value.
+ * The variable type is discovered dynamically using reflection.
+ *
+ */
 public class SetCommand {
 	static Class<?>[] parameterTypeString = { String.class };
 	static Class<?>[] parameterTypeChar = { char.class };
@@ -34,9 +41,9 @@ public class SetCommand {
 					setField(f,instance,value);
 					
 				} catch (InputMisMatchException e) {
-					System.out
+					/*System.out
 							.println("The value you want to set must be from type "
-									+ f.getType().getName());
+									+ f.getType().getName());*/
 				}
 			}
 		

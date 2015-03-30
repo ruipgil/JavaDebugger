@@ -3,6 +3,13 @@ package ist.meic.pa;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 
+/**
+ * 
+ * StackEntry Class
+ * Represents a CallStack entry object. 
+ * Each StackEntry has it's method name, instance, arguments, argument type and result type, 
+ *
+ */
 public class StackEntry {
 	String methodName;
 	Object instance;

@@ -7,6 +7,13 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Stack;
 
+/**
+ *  DebugMonitor Class
+ * 	Stores all method calls in the CallStack
+ *  Contains functions enterMethod and leaveMethod to manipulate CallStack data.
+ *  Function REPL represents Read Eval Print Loop. Contains the debugger interface.
+ *
+ */
 public class DebugMonitor {
 
 	private static Stack<StackEntry> callStack = new Stack<StackEntry>();
@@ -32,17 +39,9 @@ public class DebugMonitor {
 			throws Throwable {
 		enterMethod(classToCall + "." + methodToCall, target, args, argsType, resultType);
 
-		//String s = signature;
 		Class<?>[] parameterType = new Class<?>[args.length];
 
 		for (int i = 0; i < args.length; i++) {
-			/*if (Utils.isPrimitive(signature.charAt(1))) {
-				parameterType[i] = Utils.convertFromWrapperToPrimitive(args[i]
-						.getClass());
-			} else {
-				parameterType[i] = args[i].getClass();
-			}
-			s = Utils.nextSigType(s);*/
 			if (((Class) argsType[i]).isPrimitive()){
 				parameterType[i] = Utils.convertFromWrapperToPrimitive(args[i]
 						.getClass());
@@ -62,7 +61,6 @@ public class DebugMonitor {
 				| NoSuchMethodException | IllegalArgumentException
 				| IllegalAccessException e) {
 			System.out.println("Unexpected exception!");
-			// e.printStackTrace();
 		} catch (InvocationTargetException e) {
 
 			Throwable efe = e.getTargetException();
