@@ -7,13 +7,15 @@ public class StackEntry {
 	String methodName;
 	Object instance;
 	Object[] args;
-	String signature;
+	Object[] argsType;
+	Object resultType;
 
-	public StackEntry(String methodName, Object instance, Object[] args, String signature) {
+	public StackEntry(String methodName, Object instance, Object[] args, Object[] argsType, Object resultType) {
 		this.instance = instance;
 		this.args = args;
 		this.methodName = methodName;
-		this.signature = signature;
+		this.argsType = argsType;
+		this.resultType = resultType;
 	}
 
 	public Object getMethodName() {
@@ -28,7 +30,13 @@ public class StackEntry {
 		return args;
 	}
 
-	public String getSignature() { return signature; }
+	public Object[] getArgsType() { 
+		return argsType; 
+	}
+	
+	public Object getResultType() { 
+		return resultType; 
+	}
 
 	public String argsToSignature() {
 		String str = "(";

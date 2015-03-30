@@ -40,8 +40,7 @@ public class DebuggerTranslator implements Translator {
 					method.setBody("{ " + DebugMonitor.class.getName()
 							+ ".methodCall(null, $args, \""
 							+ method.getDeclaringClass().getName() + "\", \""
-							+ newName + "\", \"" + method.getSignature()
-							+ "\"); }");
+							+ newName + "\", $sig , $type ); }");
 
 					ctClass.addMethod(method);
 				}
@@ -67,8 +66,7 @@ public class DebuggerTranslator implements Translator {
 
 				final String template = "{" + "  $_ = ($r)" + debugMonitor
 						+ ".methodCall($0, $args, \"" + mc.getClassName() + "\", \""
-						+ mc.getMethodName() + "\" , \"" + mc.getSignature()
-						+ "\");" + "}";
+						+ mc.getMethodName() + "\" , $sig , $type );" + "}";
 				try {
 					mc.replace(template);
 				} catch (CannotCompileException e) {

@@ -16,9 +16,9 @@ public class DebugMonitor {
 	}
 
 	public static void enterMethod(String methodName, Object instance,
-			Object[] args, String signature) {
+			Object[] args, Object[] argsType, Object resultType) {
 
-		StackEntry entry = new StackEntry(methodName, instance, args, signature);
+		StackEntry entry = new StackEntry(methodName, instance, args, argsType, resultType);
 		callStack.push(entry);
 
 	}
@@ -28,21 +28,27 @@ public class DebugMonitor {
 	}
 
 	public static Object methodCall(Object target, Object[] args,
-			String classToCall, String methodToCall, String signature)
+			String classToCall, String methodToCall, Object[] argsType, Object resultType)
 			throws Throwable {
-		enterMethod(classToCall + "." + methodToCall, target, args, signature);
+		enterMethod(classToCall + "." + methodToCall, target, args, argsType, resultType);
 
-		String s = signature;
+		//String s = signature;
 		Class<?>[] parameterType = new Class<?>[args.length];
 
 		for (int i = 0; i < args.length; i++) {
-			if (Utils.isPrimitive(signature.charAt(1))) {
+			/*if (Utils.isPrimitive(signature.charAt(1))) {
 				parameterType[i] = Utils.convertFromWrapperToPrimitive(args[i]
 						.getClass());
 			} else {
 				parameterType[i] = args[i].getClass();
 			}
-			s = Utils.nextSigType(s);
+			s = Utils.nextSigType(s);*/
+			if (((Class) argsType[i]).isPrimitive()){
+				parameterType[i] = Utils.convertFromWrapperToPrimitive(args[i]
+						.getClass());
+			} else {
+				parameterType[i] = args[i].getClass();
+			}
 		}
 
 		try {
@@ -67,7 +73,7 @@ public class DebugMonitor {
 			} catch (DebuggerRetryException r) {
 				leaveMethod();
 				return methodCall(target, args, classToCall, methodToCall,
-						signature);
+						argsType, resultType);
 			} catch (Throwable t) {
 				leaveMethod();
 				throw t;
