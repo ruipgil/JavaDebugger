@@ -14,22 +14,23 @@ public class SetCommand {
 	
 	public static Object execute(Throwable t, String[] args)
 			throws InputMisMatchException {
-		System.out.println("HERE1");
+		
 		Stack<StackEntry> callStack = DebugMonitor.getCallStack();
+		
 		if(args.length<2) {
 			return null;
 		}
+		
 		String var = args[0];
 		String value = args[1];
 		
 		StackEntry top = callStack.lastElement();
 		Object instance = top.getInstance();
 		Field[] fields = instance.getClass().getDeclaredFields();
-		System.out.println("HERE1");
+
 		for (Field f : fields) {
 			if (var.equals(f.getName())) {
 				try {
-					System.out.println("HERE2");
 					setField(f,instance,value);
 					
 				} catch (InputMisMatchException e) {
