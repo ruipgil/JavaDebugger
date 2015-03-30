@@ -10,6 +10,12 @@ import javassist.Translator;
 import javassist.expr.ExprEditor;
 import javassist.expr.MethodCall;
 
+/**
+ * DebugTranslator Class
+ * Overrides Onload function to do instrumentation
+ * MethodCall function adds called methods to the DebugMonitor CallStack.
+ *
+ */
 public class DebuggerTranslator implements Translator {
 
 	String mainClass;

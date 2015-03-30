@@ -7,6 +7,12 @@ import javassist.ClassPool;
 import javassist.Loader;
 import javassist.NotFoundException;
 
+/**
+ * 
+ * DebuggerCLI Class
+ * Reads commands from the standard input and writes to standard error
+ *
+ */
 public class DebuggerCLI {
 	public static void main(String[] args) throws ClassNotFoundException,
 			NotFoundException {
@@ -28,7 +34,6 @@ public class DebuggerCLI {
 		try {
 			cl.run(className, restArgs);
 		} catch (Throwable e) {
-			// unexpected throw, or simply, thrown from main
 			System.out.println(e);
 		}
 	}
