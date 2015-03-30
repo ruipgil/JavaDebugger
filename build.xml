@@ -30,8 +30,17 @@
 		</javac>
 	</target>
 	
-	<target name="build" depends="clean, init, compile"/>
-
+	<target name="jar" depends="clean, init, compile">
+	        <jar destfile="DebuggerCLI.jar" basedir="${build}">
+	            <manifest>
+	                <attribute name="Main-Class" value="ist.meic.pa.DebuggerCLI"/>
+	            </manifest>
+	        </jar>
+	</target>
+	
+	
+	<target name="build" depends="clean, init, compile, jar"/>
+	
 	<target name="run" depends="build">
 		<java classname="${run.mainclass}">
 			<arg line="${run.args}" />
