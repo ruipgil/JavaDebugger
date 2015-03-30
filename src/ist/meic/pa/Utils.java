@@ -42,47 +42,5 @@ public class Utils {
 		}
 	}
 
-	//TODO REMOVE
-	public static boolean isPrimitive(char c) {
-		if (Character.toString(c).equals("Z")
-				|| Character.toString(c).equals("B")
-				|| Character.toString(c).equals("C")
-				|| Character.toString(c).equals("S")
-				|| Character.toString(c).equals("I")
-				|| Character.toString(c).equals("J")
-				|| Character.toString(c).equals("F")
-				|| Character.toString(c).equals("D")
-				|| Character.toString(c).equals("V")) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	//TODO REMOVE AND USE $TYPE
-	public static String nextSigType(String sig) {
-		if (isPrimitive(sig.charAt(1))) {
-			StringBuilder sb = new StringBuilder(sig);
-			sb.deleteCharAt(1);
-			return sb.toString();
-		} else if (Character.toString(sig.charAt(1)).equals("L")) {
-			String[] parts = sig.split(";", 2);
-			return "(" + parts[1];
-		} else if (Character.toString(sig.charAt(1)).equals("[")) {
-			/**
-			 * String is like "([[[[IDI..." We want to remove all instances of
-			 * "[" and the next letter also
-			 */
-			while (Character.toString(sig.charAt(1)).equals("[")) {
-				StringBuilder sb = new StringBuilder(sig);
-				sb.deleteCharAt(1);
-				sig = sb.toString();
-			}
-			StringBuilder sb = new StringBuilder(sig);
-			sb.deleteCharAt(1);
-			return sb.toString();
-
-		}
-		return null;
-	}
+	
 }
