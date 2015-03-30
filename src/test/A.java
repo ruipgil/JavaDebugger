@@ -6,7 +6,6 @@ public class A {
 	public double foo(B b) throws Exception{
 		System.out.println("Inside A.foo");
 		if (a == 1) {
-			//throw new Exception("kfzfkhd");
 			return b.bar(0);
 		} else {
 			return b.baz(null);

@@ -24,7 +24,11 @@ public class DebugMonitor {
 
 	public static void enterMethod(String methodName, Object instance,
 			Object[] args, Object[] argsType, Object resultType) {
-
+		
+		if(callStack.size()==0) {
+			methodName = methodName.replace("$original", "");
+		}
+		
 		StackEntry entry = new StackEntry(methodName, instance, args, argsType, resultType);
 		callStack.push(entry);
 
