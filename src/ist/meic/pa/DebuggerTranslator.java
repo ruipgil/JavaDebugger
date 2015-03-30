@@ -66,8 +66,7 @@ public class DebuggerTranslator implements Translator {
 				}
 
 				final String template = "{" + "  $_ = ($r)" + debugMonitor
-						+ ".methodCall(\"" + completeMethodName
-						+ "\", $0, $args, \"" + mc.getClassName() + "\", \""
+						+ ".methodCall($0, $args, \"" + mc.getClassName() + "\", \""
 						+ mc.getMethodName() + "\" , \"" + mc.getSignature()
 						+ "\");" + "}";
 				try {
