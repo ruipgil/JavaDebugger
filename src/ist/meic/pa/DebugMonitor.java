@@ -103,7 +103,8 @@ public class DebugMonitor {
 				Class<?>[] paramsType = { Throwable.class, String[].class };
 				Method m = c.getDeclaredMethod("execute", paramsType);
 				Object result = m.invoke(null, t, args);
-				if (result != null) {
+
+				if ( command[0].equals("Return") || result!=null ) {
 					return result;
 				}
 			} catch (ClassNotFoundException | SecurityException

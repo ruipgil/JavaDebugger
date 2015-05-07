@@ -60,6 +60,10 @@ public class ReturnCommand {
 			}
 			
 		}catch (Throwable e){
+			if( resultType.toString().equals("void") ) {
+				return null;
+			}
+
 			System.out.println("Return must be from type " + resultType.toString() );
 			return null;
 		}
